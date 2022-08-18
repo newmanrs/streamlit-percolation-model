@@ -6,11 +6,11 @@ from collections import defaultdict
 
 class PercolationSimulation():
 
-    def __init__(self, Nx = 10, Ny = 10, p=0.593):
+    def __init__(self, Nx=10, Ny=10, p=0.593):
 
         self.Nx = Nx
         self.Ny = Ny
-        self.Nsites =  Nx*Ny
+        self.Nsites = Nx*Ny
         self.rng = Generator(PCG64())
         self.precompute_neighbor_sites()
         self.reinitialize(Nx, Ny, p)
@@ -47,7 +47,6 @@ class PercolationSimulation():
         Nx = self.Nx
         Ny = self.Ny
 
-
         # neighbor_sites is dict of int -> (np.array(5,), np.array(5,))
         # outperforms numpy.zeros(shape = (Nx*Ny,2,5),dtype=np.int32)
         self.neighbor_sites = dict()
@@ -66,15 +65,13 @@ class PercolationSimulation():
                 # Allows for a numpy slice if we transpose
                 # into a Nx2 set of tuples.  Hideously unreadable,
                 # like most linear algebra code
-                neighs = tuple(np.array(neighs,dtype=np.uint32).T)
+                neighs = tuple(np.array(neighs, dtype=np.uint32).T)
                 self.neighbor_sites[idx_1d] = neighs
-
 
     def compute_clusters(self):
 
         Nx = self.Nx
         Ny = self.Ny
-        Nsites = Nx * Ny
         # Empty sites set to Nx*Ny+1 (larger than any possible id)
         # Initialize sites with sequentially increasing cluster id
         empty_id = Nx*Ny+1
@@ -85,7 +82,6 @@ class PercolationSimulation():
                 if self.sites[i, j]:
                     clusters[i, j] = c
                     c += 1
-
 
         # Brute force clustering loop.
         # Merge to minimum of cluster of ids neighboring iteratively
@@ -101,7 +97,7 @@ class PercolationSimulation():
 
             any_change = False
             self.cluster_iterations += 1
-            idx_1d = -1 # 1D index into neighbor list
+            idx_1d = -1  # 1D index into neighbor list
 
             for i in range(Nx):
                 for j in range(Ny):
@@ -135,26 +131,20 @@ class PercolationSimulation():
         self.sorted_cluster_sizes = sorted_cluster_sizes
         self.max_cluster_size = sorted_cluster_sizes[0][1]
 
-    def get_chart_df(self,
-            logarithmic_cluster_size = False):
+    def get_chart_df(self):
         """
         Get heatmap in appropriate units
         """
 
         # Heatmap needs to color  by cluster size.
-        self.heat_cluster_frac = np.zeros((self.Nx, self.Ny),dtype=np.float32)
-        #self.heat_cluster_frac[:]= np.nan
-        self.heat_cluster_size = np.zeros((self.Nx, self.Ny),dtype=np.int32)
-        self.heat_cluster_id = np.zeros((self.Nx, self.Ny),dtype=np.int32)
+        self.heat_cluster_frac = np.zeros((self.Nx, self.Ny), dtype=np.float32)
+        self.heat_cluster_size = np.zeros((self.Nx, self.Ny), dtype=np.int32)
+        self.heat_cluster_id = np.zeros((self.Nx, self.Ny), dtype=np.int32)
         for cl_id, cl_size in self.sorted_cluster_sizes:
-            if logarithmic_cluster_size == True:
-                self.heat_cluster_frac[self.clusters == [cl_id]] = np.log(cl_size)
-            else:
-                frac = cl_size / self.Nsites
-                self.heat_cluster_frac[self.clusters == [cl_id]] = frac
-                self.heat_cluster_size[self.clusters == [cl_id]] = cl_size
-                self.heat_cluster_id[self.clusters == [cl_id]] = cl_id
-
+            frac = cl_size / self.Nsites
+            self.heat_cluster_frac[self.clusters == [cl_id]] = frac
+            self.heat_cluster_size[self.clusters == [cl_id]] = cl_size
+            self.heat_cluster_id[self.clusters == [cl_id]] = cl_id
 
         i, j = np.meshgrid(range(0, self.Nx), range(0, self.Ny))
         df = pd.DataFrame(
