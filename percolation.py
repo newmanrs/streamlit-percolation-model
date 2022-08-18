@@ -136,7 +136,7 @@ class PercolationSimulation():
         Get heatmap in appropriate units
         """
 
-        # Heatmap needs to color  by cluster size.
+        # Heatmap needs to color by cluster size.
         self.heat_cluster_frac = np.zeros((self.Nx, self.Ny), dtype=np.float32)
         self.heat_cluster_size = np.zeros((self.Nx, self.Ny), dtype=np.int32)
         self.heat_cluster_id = np.zeros((self.Nx, self.Ny), dtype=np.int32)
