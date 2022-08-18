@@ -1,8 +1,9 @@
 # streamlit-percolation-model
 
-A [demo](https://share.streamlit.io/newmanrs/streamlit-percolation-model/main) of this app is available using streamlit-share.
+This repository contains an interactive streamlit app demonstrating site percolation on the square lattice.
 
-## Installation
-Install via provided [Makefile](Makefile).
+An [interactive demo](https://share.streamlit.io/newmanrs/streamlit-percolation-model/main) is hosted on streamlit cloud.
 
-For more details, consult the documentation for [streamlit](https://docs.streamlit.io/en/stable/).
+## Local Installation
+
+Clone and install locally via provided [Makefile](Makefile).
