@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import altair as alt
 from numpy.random import Generator, PCG64
 from collections import defaultdict
 
@@ -136,17 +135,17 @@ class PercolationSimulation():
         self.sorted_cluster_sizes = sorted_cluster_sizes
         self.max_cluster_size = sorted_cluster_sizes[0][1]
 
-    def get_chart(self,
+    def get_chart_df(self,
             logarithmic_cluster_size = False):
         """
-        Get heatmap
+        Get heatmap in appropriate units
         """
 
         # Heatmap needs to color  by cluster size.
         self.heat_cluster_frac = np.zeros((self.Nx, self.Ny),dtype=np.float32)
         #self.heat_cluster_frac[:]= np.nan
-        self.heat_cluster_size = np.zeros((self.Nx, self.Ny),dtype=np.int)
-        self.heat_cluster_id = np.zeros((self.Nx, self.Ny),dtype=np.int)
+        self.heat_cluster_size = np.zeros((self.Nx, self.Ny),dtype=np.int32)
+        self.heat_cluster_id = np.zeros((self.Nx, self.Ny),dtype=np.int32)
         for cl_id, cl_size in self.sorted_cluster_sizes:
             if logarithmic_cluster_size == True:
                 self.heat_cluster_frac[self.clusters == [cl_id]] = np.log(cl_size)
@@ -168,42 +167,4 @@ class PercolationSimulation():
             }
             )
 
-        chart_rect_width = 500 // np.max([self.Nx, self.Ny])
-        if chart_rect_width == 0:
-            chart_rect_width = 1 # min width 1 px
-
-
-        chart_title = f"Site lattice percolation Nx = {self.Nx}, " \
-            f"Ny = {self.Ny}"
-
-        # mark_rect <--> heatmap
-        chart = alt.Chart(df).mark_rect().encode(
-            x='i:O',
-            y='j:O',
-            color=alt.Color('cluster site fraction:Q',
-                scale=alt.Scale(
-                    range=['purple','yellow', 'white','white'],
-                    domain=[1.0, 0.999/(self.Nx*self.Ny), 0.999/(self.Nx * self.Ny),0.0]
-                    )
-                ),
-            tooltip=['i', 'j', 'cluster site fraction', 'cluster size', 'cluster id']
-        ).properties(
-            height={'step': chart_rect_width},
-            width={'step': chart_rect_width},
-            title=chart_title
-        ).configure_scale(
-            # Gap between rectangles
-            bandPaddingInner=0.1
-        ).configure_title(
-            fontSize=16,
-            anchor='start'
-        )
-
-        return chart
-
-
-
-
-
-        raise NotImplementedError("return df")
-        # return dataframe
+        return df
