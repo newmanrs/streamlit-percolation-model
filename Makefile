@@ -8,4 +8,4 @@ lint:
 	flake8
 
 clean:
-	rm -rf __pycache__
+	find . -type d -name __pycache__ | xargs rm -rf
