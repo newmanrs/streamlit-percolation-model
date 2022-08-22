@@ -1,6 +1,7 @@
 import streamlit as st
 import altair as alt
-
+import pandas as pd
+import json
 from percolation import PercolationSimulation
 
 
@@ -34,7 +35,12 @@ def config_streamlit_sidebar():
     return u_N, u_N, u_p
 
 
-def altair_percolation_heatmap(df, u_Nx, u_Ny):
+@st.cache
+def percolation_heatmap(df, u_Nx, u_Ny):
+    """
+    Percolation simulation heatmap using
+    altair plot library
+    """
 
     # May need to scale with u_Nx, u_Ny variables
     chart_rect_width = 500 // max(u_Nx, u_Ny)
@@ -74,6 +80,49 @@ def altair_percolation_heatmap(df, u_Nx, u_Ny):
     return chart
 
 
+def spanning_cluster_probability_chart():
+    """
+    Chart showing probability of having a spanning
+    cluster by system size and site occupation
+    probability
+    """
+
+    # Streamlit probably ought to memo-ize this figure
+    # since it's static content.
+    Llist = []
+    plist = []
+    flist = []
+    for L in [15, 20, 25, 30, 35, 40]:
+        with open(f"perc-prob-chart/{L}.json", 'r') as f:
+            data = json.load(f)
+            for k, v in data.items():
+                Llist.append(str(L))
+                plist.append(k)
+                flist.append(v)
+    df = pd.DataFrame(
+        {
+            'System size L': Llist,
+            'Site occupation probability p': plist,
+            'Spanning Cluster Fraction': flist
+        }
+        )
+    df['Site occupation probability p'] = \
+        df['Site occupation probability p'].apply(
+            lambda x: round(float(x), 3)
+            )
+
+    df['System size L'].astype('category')
+    # st.write(df)
+
+    chart = alt.Chart(df).mark_line().encode(
+        x='Site occupation probability p',
+        y='Spanning Cluster Fraction',
+        color='System size L',
+        # strokeDash='System size L',
+        )
+    return chart
+
+
 def main_streamlit_page():
 
     u_Nx, u_Ny, u_p = config_streamlit_sidebar()
@@ -108,7 +157,7 @@ def main_streamlit_page():
         if sim.Nx != u_Nx or sim.Ny != u_Ny or sim.p != u_p:
             sim.reinitialize(u_Nx, u_Ny, u_p)
             df = sim.get_chart_df()
-            stss.chart = altair_percolation_heatmap(df, u_Nx, u_Ny)
+            stss.chart = percolation_heatmap(df, u_Nx, u_Ny)
 
         sim.trial()
 
@@ -152,23 +201,24 @@ def main_streamlit_page():
         spanning cluster which occurs near $p=0.593$ 
         ([Ziff 2000](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.85.4104)).
 
-        Hitting the reset button on the simulation at different 
-        probabilities in this demo lets you look for the transition 
-        between these states.  Spanning 
-        clusters are those that possess more than half 
+        Hitting the reset button on the simulation at different
+        probabilities in this demo lets you look for the transition
+        between these states.  Spanning
+        clusters are those that possess more than half
         the sites in the system.  We then look for a $p$ where we expect to observe
         a spanning cluster half of the time and call this the phase transition
 
         Plotting the probability of finding a spanning cluster for various $p$
-        from several trials will reveal a sigmoid curve reaching 50% around 0.593.
+        from several simulations will reveal a sigmoid curve reaching 50% around 0.593.
+        Below is a plot of the spanning cluster probability
+        for various sizes with 1000 trials per data point.
         The width of the transition is dependent on the grid size, and narrows
         as N is increased.  In the limit of $N \to \infty$ it should narrow into
         a step function.
 
-        TODO: Precompute and render this graph for N=10, 20, 30 etc. for p = 0.4 to 0.7 by 0.01,
-        with at least ten or a hundred replicas per point.
-
         ''') # noqa : E501
+
+    st.write(spanning_cluster_probability_chart())
 
 
 if __name__ == '__main__':
