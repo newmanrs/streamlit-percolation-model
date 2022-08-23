@@ -54,6 +54,8 @@ if __name__ == '__main__':
                 )
     values_to_map *= jobs_per_statepoint
 
+    # Are you kidding me dask assumes functions are
+    # pure as a default and memoizes everything.
     maps = c.map(runTrials, values_to_map, pure=False)
 
     data = c.gather(maps)
