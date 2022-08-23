@@ -103,7 +103,7 @@ def spanning_cluster_probability_chart():
         {
             'System size L': Llist,
             'Site occupation probability p': plist,
-            'Spanning Cluster Fraction': flist
+            'Spanning Cluster Probability': flist
         }
         )
     df['Site occupation probability p'] = \
@@ -116,7 +116,7 @@ def spanning_cluster_probability_chart():
 
     chart = alt.Chart(df).mark_line().encode(
         x='Site occupation probability p',
-        y='Spanning Cluster Fraction',
+        y='Spanning Cluster Probability',
         color='System size L',
         # strokeDash='System size L',
         )
@@ -206,20 +206,28 @@ def main_streamlit_page():
         between these states.  Spanning
         clusters are those that possess more than half
         the sites in the system.  We then look for a $p$ where we expect to observe
-        a spanning cluster half of the time and call this the phase transition
+        a spanning cluster half the time to locate the phase transition.
 
         Plotting the probability of finding a spanning cluster for various $p$
         from several simulations will reveal a sigmoid curve reaching 50% around 0.593.
         Below is a plot of the spanning cluster probability
-        for various sizes with 1000 trials per data point.
+        for various system sizes with 1000 trials per data point.
         The width of the transition is dependent on the grid size, and narrows
         as N is increased.  In the limit of $N \to \infty$ it should narrow into
         a step function.
-
-        ''') # noqa : E501
+        '''
+        ) # noqa : E501
 
     st.write(spanning_cluster_probability_chart())
 
+    st.write(
+        """
+        Source code for this app is 
+        [available on my github](https://github.com/newmanrs/streamlit-percolation-model).
+        Feel free to reach out to me if you wish to work to expand this app into
+        a more polished teaching tutorial.
+        """
+        ) # noqa : E501
 
 if __name__ == '__main__':
 
